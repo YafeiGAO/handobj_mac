@@ -53,8 +53,8 @@ class BinaryDbReader(object):
                 crop_offset_noise: boolean, Offsets the hand crop center randomly (keypoints can lie outside the crop)
                 scoremap_dropout: boolean, Randomly drop scoremap channels
         """
-        self.path_to_db = '/Volumes/SAMSUNG/finished_0620/handobj_single_0620.bin'
-        #self.path_to_db = '/media/wangyida/D0-P1/finished_0620/handobj_single_0620.bin'
+        #self.path_to_db = '/Volumes/SAMSUNG/finished_0620/handobj_single_0620.bin'
+        self.path_to_db = '/media/wangyida/D0-P1/finished_0620/handobj_single_0620.bin'
 
         # general parameters
         self.batch_size = batch_size
