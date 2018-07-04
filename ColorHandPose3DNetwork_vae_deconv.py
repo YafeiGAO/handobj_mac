@@ -164,22 +164,18 @@ class ColorHandPose3DNetwork(object):
                 
             # use encoding to detect initial scoremap
             x = ops.conv_relu(encoding, 'conv6_1', kernel_size=1, stride=1, out_chan=512, trainable=train)
-            print(x.get_shape().as_list())
+
             # conv 
             x1 = ops.conv_relu(x, 'conv7', kernel_size=3, stride=2, out_chan=512, trainable=train)
-            print(x1)
             x2 = ops.conv_relu(x1, 'conv8', kernel_size=3, stride=2, out_chan=512, trainable=train)
-            print(x2)
             x3 = ops.conv_relu(x2, 'conv9', kernel_size=3, stride=2, out_chan=512, trainable=train)
-            print(x3)
             n_clusters = 5
-            # vae 
+            
+            # var + ml  
             scorevec = tf.reshape(x3,[x3.shape[0],x3.shape[1]*x3.shape[2]*x3.shape[3]])
-            print(scorevec)
-            print('vae:')#
+            print('var:')
             s3 = x3.get_shape().as_list()
             num_output = s3[1]*s3[2]*s3[3]
-            print(num_output)
             #scorevec = tf.contrib.layers.fully_connected(scorevec, num_outputs)
             label = tf.placeholder(tf.int32, [None], 'label')
             #label = tf.squeeze(tf.cast(label,tf.int32))
@@ -194,25 +190,18 @@ class ColorHandPose3DNetwork(object):
             output_shape_hw =[h, h*2, h*4]
             output_shape_chain = [256, 64, 2]
             for layer_id, (hw_num, chain_num) in enumerate(zip(output_shape_hw, output_shape_chain),1):
-                print(layer_id)
-                print(x.get_shape().as_list())
                 x_size  = x.get_shape().as_list()
                 output_shape = [x_size[0], hw_num, hw_num, chain_num]
-                print('output_shape bf upconv')
-                print(output_shape)
                 x = ops.upconv_relu(x, 'upconv_%d'%(layer_id+1), kernel_size=3, stride=2, output_shape = output_shape, trainable=train)
             scoremap = x        
-            print('scoremap after upconv:')
-            print(scoremap.get_shape().as_list())
+            
             # scoremap = ops.conv(x, 'conv6_2', kernel_size=1, stride=1, out_chan=2, trainable=train)
             scoremap_list.append(scoremap)
 
             # upsample to full size
             s = image.get_shape().as_list()
-            print('after deconv:')
-            print(scoremap_list)
             scoremap_list_large = [tf.image.resize_images(x, (s[1], s[2])) for x in scoremap_list]
-            print(scoremap_list_large)#8*256*256*2
+            print(scoremap_list_large)#8*320*320**2
 
         return {'score_mask':scoremap_list_large, 'image':image, 'loss_z': loss_z, 'loss_0d': loss_0d,'loss_1d': loss_1d,'loss_2d': loss_2d,}
 
