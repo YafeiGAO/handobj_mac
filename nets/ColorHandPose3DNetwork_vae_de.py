@@ -187,10 +187,11 @@ class ColorHandPose3DNetwork(object):
             
             # deconv
             h = x.get_shape().as_list()[1]*2
-            output_shape_hw =[h, h*2, h*4]
-            output_shape_chain = [256, 64, 2]
+            output_shape_hw =[h, h*2, h*4, h*8, h*16, h*32]
+            output_shape_chain = [512, 512, 512, 256, 64, 2]
             for layer_id, (hw_num, chain_num) in enumerate(zip(output_shape_hw, output_shape_chain),1):
                 x_size  = x.get_shape().as_list()
+                print(x_size)
                 output_shape = [x_size[0], hw_num, hw_num, chain_num]
                 x = ops.upconv_relu(x, 'upconv_%d'%(layer_id+1), kernel_size=3, stride=2, output_shape = output_shape, trainable=train)
             scoremap = x        
@@ -226,6 +227,7 @@ class ColorHandPose3DNetwork(object):
             x = image_crop
             for block_id, (layer_num, chan_num, pool) in enumerate(zip(layers_per_block, out_chan_list, pool_list), 1):
                 for layer_id in range(layer_num):
+                    print(block_id,',',layer_id)
                     x = ops.conv_relu(x, 'conv%d_%d' % (block_id, layer_id+1), kernel_size=3, stride=1, out_chan=chan_num, trainable=train)
                 if pool:
                     x = ops.max_pool(x, 'pool%d' % block_id)
